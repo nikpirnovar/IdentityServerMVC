@@ -29,7 +29,7 @@ namespace Website
                 o.DefaultAuthenticateScheme = "cookie";
                 //Ko je uporabnik vpisan se naredi cookie
                 o.DefaultSignInScheme = "cookie";
-                //preverja ali lahko prijavljen racun nekaj naredu (authorize)
+                //preverja ali lahko prijavljen racun nekaj naredi (authorize)
                 o.DefaultChallengeScheme = "oAuth";
             })
                 .AddCookie("cookie", options =>
@@ -38,21 +38,28 @@ namespace Website
                 })
                 .AddOAuth("oAuth", options =>
                 {
+                    //spodnje nastavitve so nastavljene v IdentityServer client-u
                     //kam se preusmeri uspesna prijava
                     options.CallbackPath = "/oauth/callback";
+
                     //ime klienta registriranega v IdentityServer
                     options.ClientId = "mvc";
-                    //geslo klienta registriranega v IdentityServer (sha256 zaradi dolzine gesla - ni treba)
+
+                    //geslo klienta registriranega v IdentityServer
                     options.ClientSecret = "secret";
+
+                    //seznam scope-ov, ki jih uporabnik uporablja v okviru prijave
+                    options.Scope.Add("mvc.pravica1");
+                    options.Scope.Add("openid");
+
                     //endpointi Identity serverja - so na /.well-known/openid-configuration
                     options.AuthorizationEndpoint = identityServerUrl + "/connect/authorize";
                     options.TokenEndpoint = identityServerUrl + "/connect/token";
                     options.UserInformationEndpoint = identityServerUrl + "/connect/userinfo";
-                    //napolni seznam pravic
-                    options.Scope.Add("mvc.pravica1");
-                    options.Scope.Add("openid");
+
                     //PKCE
                     options.UsePkce = true;
+
                     //mapiranja podatkov iz openid v User.Claims
                     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
                     options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
